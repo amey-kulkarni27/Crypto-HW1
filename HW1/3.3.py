@@ -35,12 +35,13 @@ exec(lines[-3])
 
 data = np.array(Q3_img, dtype=int) # N x M
 
-data = [(data >> (16 - 8 * i)) & 0xFF for i in range(3)]
-# red, blue, green = [(data >> (16 - 8 * i)) & 0xFF for i in range(3)]
+# data = [(data >> (16 - 8 * i)) & 0xFF for i in range(3)]
+red, green, blue = [(data >> (16 - 8 * i)) & 0xFF for i in range(3)]
 
-# data = [(red & 7) << 5, (green >> 2) & 3, ((green & 3) << 6) | ((blue & 1) << 5)]
-# data = [(red & 7) << 5, green & 0xc0, ((green & 3) << 6) | (blue >> 5) & 1 | (green & 0x4c)]
-
+data = [(red & 7)<<5, ((blue>>1) & 15)<<4, ((green & 3) << 6) | ((blue & 1) << 5)]
+img = np.dstack(data).astype(np.uint8) # N x M x 3
+plt.plot(), imshow(img)
+plt.show()
 # data = [(data >> (16 - 8 * i)) & 0xFF for i in range(3)]
 # green_l2 = data[1] & 3
 # green_4 = (data[1] & 30)
@@ -52,15 +53,13 @@ data = [(data >> (16 - 8 * i)) & 0xFF for i in range(3)]
 # data[2] = (data[2] & 225) | (green_4)
 
 bw3 = data[2][91, :]
-for j in range(1):
-    bcopy = bw3.copy()
-    # for i in range(bw3.shape[0]):
-    #     bw3[i] = (bw3[i] >> j) & 1
-    bw3 = (bw3>>j) & 1
-    cipher = convert(bw3)
-    print(max(cipher)-min(cipher))
-    print(decrypt(cipher, 'obiwan'))
-    bw3 = bcopy.copy()
+bcopy = bw3.copy()
+# for i in range(bw3.shape[0]):
+#     bw3[i] = (bw3[i] >> j) & 1
+bw3 = (bw3>>5) & 1
+cipher = convert(bw3)
+print(decrypt(cipher, 'obiwan'))
+bw3 = bcopy.copy()
 # ctr = 0
 # l = []
 # for r in range(bw3.shape[0]):
@@ -70,6 +69,7 @@ for j in range(1):
 # print(l[:10])
 
 # Brute force implementation
+'''
 ls = []
 for k in range(data[2].shape[0]):
     bw3 = data[2][k, :]
@@ -83,3 +83,4 @@ for k in range(data[2].shape[0]):
         bw3 = bcopy.copy()
 ls.sort()
 print(ls[:5])
+'''
