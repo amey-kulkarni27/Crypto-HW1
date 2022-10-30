@@ -1,0 +1,16 @@
+# SCIPER = 353055
+# id = 353055
+# seed = 7933357149999300907
+# Worked with (list all):
+###### Exercise 1
+Q1b_pt=
+Q1c_sk=
+Q1c_pt=
+###### Exercise 2
+Q2a_m=
+Q2b_C2=
+###### Exercise 3
+Q3a_sk=to take you from the night to the sky you need to keep the last three reds. the last two greens will give you the two most important blues. finally, within the blue the third other blue lie last, preceeded by four greens.
+Q3b_sk=after 91 years the third blue sky will reveal its secret after opening the door with obiwan
+Q3c_pt=whaticanneverexpressyetcannotallconceal
+
