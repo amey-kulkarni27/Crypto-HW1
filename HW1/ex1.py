@@ -1,3 +1,6 @@
+import hashlib
+import base64
+
 def enc(K, pt, L):
     N = len(L)
     s = len(K[0])
@@ -33,7 +36,8 @@ def enc(K, pt, L):
         add_tau = lambda x, y: (x + y) % N
         sub_tau = lambda x, y: (x - y + N) % N
 
-        x = sigma[0][x]
+        x = sigma[x]
+        # x = sigma[0][x]
 
         for i in range(s):
             x = add_tau(x, rho_0[i])
@@ -47,7 +51,8 @@ def enc(K, pt, L):
             x = rho[i].index(x)
             x = sub_tau(x, rho_0[i])
             
-        x = sigma[0][x]
+        x = sigma[x]
+        # x = sigma[0][x]
         # print(x)
 
         ct.append(L[x])
@@ -62,9 +67,29 @@ def enc(K, pt, L):
 
 lines = [s for s in open('353055/353055-params.txt') if s[0] != '#' and len(s) > 0 and s.isspace()==False]
 
-for line in lines[:7]:
+for line in lines[:14]:
     exec(line)
 
-K = (Q1a_R, Q1a_pi, Q1a_sigma)
-# print(len(Q1a_R[4]))
-print(enc(K, Q1a_pt, Q1a_L)[1] == Q1a_ct)
+# K = (Q1a_R, Q1a_pi, Q1a_sigma)
+# # print(len(Q1a_R[4]))
+# print(enc(K, Q1a_pt, Q1a_L)[1] == Q1a_ct)
+
+
+
+
+def checksum(*args, sep=';'):
+    data = sep.join(map(str, args)).encode()
+    return hashlib.new('md5', data=data).hexdigest()
+
+
+K = (Q1b_R, Q1b_pi, Q1b_sigma)
+Q1b_pt = enc(K, Q1b_ct, Q1b_L)[1]
+
+mess = ""
+for i in Q1b_pt:
+    mess += chr(i)
+print(mess)
+data = base64.b64encode(mess.encode()).decode() # type: str
+print(data)
+assert checksum(data) == Q1b_pt_checksum
+print(checksum(data) == Q1b_pt_checksum)
