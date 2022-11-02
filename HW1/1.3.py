@@ -1,6 +1,8 @@
 
 import itertools
 from copy import deepcopy
+import hashlib
+import base64
 
 def enc(K, pt, L):
     N = len(L)
@@ -223,14 +225,49 @@ all_perms = find_permutations(Q1c_trace)
 
 # print(Q1c_trace[1][0][0][0])
 
-inds_uk = [i for i in range(len(pi)) if pi[i] == -1]
-print(inds_uk)
-# print(inds)
-# print(Q1c_ct[:20])
-# print(Q1c_pt_view[:20])
-best = 100
-ans = ""
-fin_st = None
+# inds_uk = [i for i in range(len(pi)) if pi[i] == -1]
+# print(inds_uk)
+# # print(inds)
+# # print(Q1c_ct[:20])
+# # print(Q1c_pt_view[:20])
+# best = 100
+# ans = ""
+# fin_st = None
+# for i in range(3):
+#     pfill = inds_uk[:]
+#     pi_uk = deepcopy(pi)
+#     pi_uk[pfill[i+1]] = pfill[0]
+#     pi_uk[pfill[0]] = pfill[i+1]
+#     others = []
+#     for j in range(1, 4):
+#         if j != i+1:
+#             others.append(j)
+#     pi_uk[pfill[others[0]]] = pfill[others[1]]
+#     pi_uk[pfill[others[1]]] = pfill[others[0]]
+#     # for pf in range(len(pfill)):
+#     #     pi_uk[pfill[pf]] = pfill[pf]
+#     assert(len(pi_uk) == len(set(pi_uk)))
+#     assert(min(pi_uk) == 0)
+#     for i in init_posns:
+#         inds[0] = i
+#         R = [[all_perms[k], inds[k], turnover_pts[k]] for k in range(5)]
+#         K = [R, pi_uk, [fpt, nfpt]]
+#         K_save = deepcopy(K)
+#         st, pt = enc(K, Q1c_ct, Q1c_L)
+#         flag = 1
+#         for k in range(len(pt)):
+#             if Q1c_pt_view[k] != -1 and pt[k] != Q1c_pt_view[k]:
+#                 flag = 0
+#                 break
+#         if flag:
+#             ans =  (''.join(chr(i) for i in pt))
+#             break
+
+inds_uk = []
+for idd, t in enumerate(pi):
+    if t == -1:
+        inds_uk.append(idd)
+        
 for i in range(3):
     pfill = inds_uk[:]
     pi_uk = deepcopy(pi)
@@ -242,50 +279,46 @@ for i in range(3):
             others.append(j)
     pi_uk[pfill[others[0]]] = pfill[others[1]]
     pi_uk[pfill[others[1]]] = pfill[others[0]]
-    # for pf in range(len(pfill)):
-    #     pi_uk[pfill[pf]] = pfill[pf]
-    assert(len(pi_uk) == len(set(pi_uk)))
-    assert(min(pi_uk) == 0)
-    for i in init_posns:
-        cur_s = 0
-        succ = True
-        inds[0] = i
-        R = [(all_perms[k], inds[k], turnover_pts[k]) for k in range(5)]
-        K = (R, pi_uk, (fpt, nfpt))
-        st, pt = enc(K, Q1c_ct, Q1c_L)
-        for k in range(len(pt)):
-            if Q1c_pt_view[k] != -1 and pt[k] != Q1c_pt_view[k]:
-                cur_s += 1
-        if cur_s < best:
-            best = cur_s
-            ans = pt
-            fin_st = st
-        # if succ:
-        #     print(i)
-        #     print(''.join(chr(i) for i in pt))
-ans_str = (''.join(chr(i) for i in ans))
-# print(fin_st)
-print(ans_str)
+    last_pi = deepcopy(pi_uk)
+    for s in init_posns:
+        rotors = [None for i in range(5)]
+        for i in range(5):
+            rotors[i] = [all_perms[i], inds[i], turnover_pts[i]]
+        rotors[0][1] = s
+        
+        K = (rotors, pi_uk, [fpt, nfpt])
+        K_save = deepcopy(K)
+        K_prime, res = enc(K, Q1c_ct, Q1c_L)
+        flag = 1
+        for idx, ch in enumerate(res):
+            if Q1c_pt_view[idx] == -1:
+                continue
+            if Q1c_pt_view[idx] != ch:
+                flag = 0
+                break
+                
+            
+        if flag:
+            pt = ""
+            for i in res:
+                pt += chr(i)
+            print(pt)
+            break
+            
+    if flag:
+        break
 
+for i in range(5):
+    K_save[0][i][2].sort()
 
+def checksum(*args, sep=';'):
+    data = sep.join(map(str, args)).encode()
+    return hashlib.new('md5', data=data).hexdigest()
 
-Q1c_pt_str_c='If you keep bad-mouthing someone, you might feel like as if you are on a higher position than that person. But in actual fact, its completely wrong to do that! (Yoshioka Futaba, Ao Haru Ride)'
-Q1c_sk_c=[[[[3, 0, 43, 36, 21, 48, 33, 29, 51, 8, 49, 20, 26, 18, 23, 31, 39, 4, 37, 25, 40, 6, 17, 50, 16, 11, 47, 38, 14, 10, 12, 7, 9, 46, 30, 32, 5, 2, 19, 28, 35, 22, 42, 15, 41, 24, 13, 44, 34, 45, 27, 1], 20, []], [[39, 17, 36, 50, 16, 31, 19, 1, 29, 11, 49, 37, 38, 8, 27, 12, 0, 21, 20, 32, 34, 15, 5, 40, 42, 47, 10, 46, 30, 51, 35, 2, 6, 4, 43, 45, 48, 25, 7, 18, 33, 13, 28, 41, 22, 24, 23, 14, 3, 44, 9, 26], 8, [11, 29, 50]], [[31, 1, 29, 37, 20, 21, 35, 50, 33, 0, 6, 44, 51, 11, 48, 19, 25, 41, 7, 10, 36, 14, 22, 32, 46, 39, 47, 45, 9, 18, 43, 26, 49, 17, 27, 42, 40, 23, 15, 8, 12, 2, 24, 4, 28, 3, 16, 38, 34, 30, 5, 13], 25, [1, 5]], [[25, 36, 1, 24, 19, 12, 14, 18, 8, 44, 45, 50, 40, 34, 9, 28, 0, 4, 47, 15, 10, 13, 46, 39, 5, 17, 51, 20, 41, 43, 3, 35, 38, 21, 33, 27, 26, 11, 42, 30, 37, 7, 29, 48, 32, 49, 31, 16, 23, 6, 2, 22], 30, [7, 29]], [[23, 6, 8, 34, 12, 27, 26, 11, 30, 20, 7, 4, 16, 43, 15, 51, 13, 33, 18, 32, 25, 41, 0, 24, 44, 29, 47, 17, 1, 36, 38, 2, 48, 39, 14, 45, 35, 46, 3, 42, 19, 22, 21, 37, 40, 49, 9, 10, 50, 5, 31, 28], 3, []]], [49, 45, 47, 41, 16, 38, 42, 18, 31, 28, 34, 12, 11, 46, 33, 36, 4, 43, 7, 51, 30, 27, 26, 50, 37, 29, 22, 21, 9, 25, 20, 8, 48, 14, 10, 40, 15, 24, 5, 44, 35, 3, 6, 17, 39, 1, 13, 2, 32, 0, 23, 19], [[0, 1, 2, 3, 18, 45, 44, 30, 35, 9, 11, 10, 16, 13, 14, 15, 12, 17, 4, 19, 41, 21, 40, 23, 24, 25, 26, 27, 28, 29, 7, 31, 34, 36, 32, 8, 33, 37, 38, 39, 22, 20, 42, 43, 6, 5, 46, 47, 48, 49, 50, 51], 30]]
-Q1c_pt_c='SWYgeW91IGtlZXAgYmFkLW1vdXRoaW5nIHNvbWVvbmUsIHlvdSBtaWdodCBmZWVsIGxpa2UgYXMgaWYgeW91IGFyZSBvbiBhIGhpZ2hlciBwb3NpdGlvbiB0aGFuIHRoYXQgcGVyc29uLiBCdXQgaW4gYWN0dWFsIGZhY3QsIGl0cyBjb21wbGV0ZWx5IHdyb25nIHRvIGRvIHRoYXQhIChZb3NoaW9rYSBGdXRhYmEsIEFvIEhhcnUgUmlkZSk='
-# print(len(fin_st[0][0]), len(Q1c_sk_c[0][0]))
-# print(len(fin_st))
-# print(len(Q1c_sk_c[0][1]))
-# for i in range(52):
-#     if fin_st[0][0][i] != Q1c_sk_c[0][0][0][i]:
-#         print(i, fin_st[0][0][i], Q1c_sk_c[0][0][i])
-ctr = 0
-# for i in range(len(ans_str)):
-#     if(ans_str[i] != Q1c_pt_str_c[i]):
-#         ctr += 1
-#         print(i, ans_str[i], Q1c_pt_str_c[i], chr(Q1c_ct[i]))
+data = base64.b64encode(pt.encode()).decode() # type: str
+print(data)
+assert checksum(data) == Q1c_pt_checksum
 
-
-for i in range(52):
-    if fin_st[1][i] != Q1c_sk_c[1][i]:
-        print(i, fin_st[1][i], Q1c_sk_c[1][i])
-# print(fin_st[2][1] == Q1c_sk_c[2][1])
+assert checksum([K_save[0], K_save[1], K_save[2]]) == Q1c_sk_checksum
+Q1c_sk = [K_save[0], K_save[1], K_save[2]]
+print(Q1c_sk)
