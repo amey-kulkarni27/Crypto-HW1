@@ -13,7 +13,6 @@ def decrypt(s, key):
     for c, i in zip(s, range(len(s))):
         diff = ord(key[i % len(key)]) - ord('a')
         v = (c - diff - ord('a')) % ALPHABET 
-        # v %= ALPHABET
         t += chr(v + ord('a'))
     return t
 
@@ -35,40 +34,25 @@ exec(lines[-3])
 
 data = np.array(Q3_img, dtype=int) # N x M
 
-# data = [(data >> (16 - 8 * i)) & 0xFF for i in range(3)]
 red, green, blue = [(data >> (16 - 8 * i)) & 0xFF for i in range(3)]
 
+# Using Hint 1 to convert "night" image to "day"
 data = [(red & 7)<<5, ((blue>>1) & 15)<<4, ((green & 3) << 6) | ((blue & 1) << 5)]
 img = np.dstack(data).astype(np.uint8) # N x M x 3
 plt.plot(), imshow(img)
 plt.show()
-# data = [(data >> (16 - 8 * i)) & 0xFF for i in range(3)]
-# green_l2 = data[1] & 3
-# green_4 = (data[1] & 30)
-# blue_third = data[2] & 32
-# data[0] = data[0] & 7
-# data[1] = data[1] & 252
-# data[2] = (data[2] & 63) | (green_l2 << 6)
-# data[2] = (data[2] & 254) | (blue_third == 1)
-# data[2] = (data[2] & 225) | (green_4)
+# Shifted red and blue right to the msb to make the image appear better
 
+# "after 91 years"
 bw3 = data[2][91, :]
 bcopy = bw3.copy()
-# for i in range(bw3.shape[0]):
-#     bw3[i] = (bw3[i] >> j) & 1
+
 bw3 = (bw3>>5) & 1
 cipher = convert(bw3)
 print(decrypt(cipher, 'obiwan'))
 bw3 = bcopy.copy()
-# ctr = 0
-# l = []
-# for r in range(bw3.shape[0]):
-#     x = convert(bw3[r])
-#     l.append(max(x) - min(x))
-# l.sort()
-# print(l[:10])
 
-# Brute force implementation
+# Brute force implementation, used it figure out 91 meant 91st row
 '''
 ls = []
 for k in range(data[2].shape[0]):

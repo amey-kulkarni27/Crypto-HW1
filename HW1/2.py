@@ -1,28 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
-
-
-
-# HW1-Ex 2 -Final version
-
-# Q2.1
-
-# In[1]:
-
-
 def hex_conv(x):
     return hex(x).lstrip("0x").rstrip("L")
 def hex_deconv(x):
     x = int(x, base=16)
     return x
-
-
-# In[2]:
-
 
 def encryption(pk, m, pp):
     p, g = pp
@@ -30,25 +10,14 @@ def encryption(pk, m, pp):
     C = ""
     for x in m:
         list_m.append(x)
-   
-        
-        
-
-
-# In[3]:
-
 
 def decryption(sk, C, pp, mapping):
     p, g = pp
-#     u ^ -x = hex(c2)
-#  thus we have to compute hex(c2)^(-sk)
     list_C = list(filter(None, C.split(";")))
     list_m = ""
     for mc in list_C:
         list_mc = list(filter(None, mc.split(":")))
-#         print(list_mc[0])
         c1 = hex_deconv(list_mc[0])
-#         print(list_mc[1])
         c2 = hex_deconv(list_mc[1])
         ppp = pow(c2, -sk, p)
         m = (c1 * ppp)% p
@@ -56,20 +25,6 @@ def decryption(sk, C, pp, mapping):
         list_m = list_m + chr(m)
     return list_m
 
-
-# In[4]:
-
-
-# m = (1, 2, 2)
-
-
-# In[5]:
-
-
-# decryption(1, m, (1, 2))
-
-
-# In[6]:
 
 Q2a_p=155315526351482395991155996351231807220169644828378937433223838972232518351958838087073321845624756550146945246003790108045940383194773439496051917019892370102341378990113959561895891019716873290512815434724157588460613638202017020672756091067223336194394910765309830876066246480156617492164140095427773547319
 Q2a_g=51597127808028724070322766355878974956480439135173857843312132903385411426899021635852558425000053866777466553018833200699604174900295976283603906202094410728708865787130050501252447056954048909883097798103053576394673181896975052057795509951452585660665650536046702583012063632220498803679308157192222745151
@@ -79,9 +34,6 @@ Q2a_C="16b98d121f632ce086249431cc5cc1d1ace1273579eb2dd7ae076d5daf520efe016cc6e04
 pp = (Q2a_p, Q2a_g)
 
 
-# In[7]:
-
-
 mapping = {}
 list_p = list(range(65,91))
 for x in list_p:
@@ -89,27 +41,12 @@ for x in list_p:
     mapping[g_pow] = x
 
 
-# In[8]:
-
-
-mapping
-
-
-# In[9]:
-
-
 m = decryption(Q2a_sk, Q2a_C, pp, mapping)
-
-
-# In[10]:
 
 
 print(m)
 
 
-# Q2.2
-
-# In[11]:
 
 Q2b_p=155315526351482395991155996351231807220169644828378937433223838972232518351958838087073321845624756550146945246003790108045940383194773439496051917019892370102341378990113959561895891019716873290512815434724157588460613638202017020672756091067223336194394910765309830876066246480156617492164140095427773547319
 Q2b_g=74201123896895658599769437330385215329673305903762238714597606733040538919583274550362259546795151249974241080084909792556554874847468479389571460390273487683653815439838358894514608792504577977364436458856172794621553324851947147031437682545028088629618102026800162608322775773608909146444500510278376638582
@@ -120,9 +57,6 @@ Q2b_KEY=250151
 
 Q2b_KEY_String="250151"
 pp = (Q2b_p, Q2b_g)
-
-
-# In[12]:
 
 
 def process_cipher(pk, C, pp, key ):
@@ -142,23 +76,9 @@ def process_cipher(pk, C, pp, key ):
     return list_C_new
 
 
-# In[13]:
-
-
 C_prime = process_cipher(Q2b_pk, Q2b_C1, pp, Q2b_KEY_String)
-(C_prime)
-
-
-# In[14]:
 
 
 import hashlib
 Q2b_C2hash="360b0648e535ae6b2b7f8d1a0045bf8adc3b180c1db1d68e84d3a70b3aeb68e3"
-print(hashlib.sha256(C_prime.encode()).hexdigest() == Q2b_C2hash)
-
-
-# In[ ]:
-
-
-
-
+assert hashlib.sha256(C_prime.encode()).hexdigest() == Q2b_C2hash

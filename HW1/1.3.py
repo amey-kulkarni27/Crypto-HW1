@@ -4,6 +4,7 @@ from copy import deepcopy
 import hashlib
 import base64
 
+# Function copied from 1.1-1.2.py
 def enc(K, pt, L):
     N = len(L)
     s = len(K[0])
@@ -69,26 +70,27 @@ def enc(K, pt, L):
     return K_prime, ct
 
 
-lines = [s for s in open('/Users/amey2704/Documents/Fall22/Crypto/Cryptography-and-Security-COM-401/HW1/353055/353055-params.txt') if s[0] != '#' and len(s) > 0 and s.isspace()==False]
+lines = [s for s in open('353055/353055-params.txt') if s[0] != '#' and len(s) > 0 and s.isspace()==False]
 
 for line in lines[14:21]:
     exec(line)
 
+# Printing provided info about the machine
 print("Number of characters: ", len(Q1c_L))
 print(f"Length of cipher text: {len(Q1c_ct)}. Number of plaintext characters known: {len(Q1c_pt_view) - Q1c_pt_view.count(-1)}")
 print("Number of characters for which we have hints: ", (Q1c_trace.keys()))
 print(f"Number of rotors: {len(Q1c_trace[1][0])}")
-# print(f"{(Q1c_trace[1][2])}")
-# print(Q1c_ct)
-# print(Q1c_pt_view) 90 -> 73
 
+# Number of unknowns
 def find_minus(l):
     return l.count(-1)
 
+# Find number of involution points
 def fixed_pts(l):
     x = [l[i] - i for i in range(len(l))]
     return x.count(0)
 
+# Accumulating all refectors (since they don't change)
 def find_reflectors(Q1c_trace):
     reflectors = [-1 for i in range(52)]
     for i in Q1c_trace.keys():
@@ -100,12 +102,14 @@ def find_reflectors(Q1c_trace):
     #     Q1c_trace[i][1] = reflectors
     return reflectors
 
+# Number of involution points in the plugboard
 def find_nfpt(Q1c_trace):
     for i in Q1c_trace.keys():
         sigmas = Q1c_trace[i][2]
         if(sigmas[1] != -1):
             return sigmas[1]
 
+# Accumulating all sigma (since they don't change)
 def find_fpt(Q1c_trace):
     sigma = [-1 for i in range(52)]
     for i in Q1c_trace.keys():
@@ -117,6 +121,7 @@ def find_fpt(Q1c_trace):
     #     Q1c_trace[i][2][0] = sigma
     return sigma
 
+# -1 in sigma are replaced by point position, since these are fixed points
 def fill_fixed(fpt):
     for i in range(len(fpt)):
         if fpt[i] == -1:
@@ -125,6 +130,7 @@ def fill_fixed(fpt):
     #     Q1c_trace[i][2][1] = fpt
     return fpt
 
+# Accumulating all turnover points in all rotors of the enigma machine (since they don't change)
 def find_turnover_points(Q1c_trace):
     turnover_points = [set() for i in range(5)]
     for i in Q1c_trace.keys():
@@ -138,6 +144,7 @@ def find_turnover_points(Q1c_trace):
         turnover_points[r_no] = list(turnover_points[r_no])
     return turnover_points
 
+# Accumulating all permutations in all rotors of the enigma machine (since they don't change)
 def find_permutations(Q1c_trace):
     perms = [[-1 for i in range(52)] for i in range(5)]
     for i in Q1c_trace.keys():
@@ -148,13 +155,10 @@ def find_permutations(Q1c_trace):
                 perms[r_no][p] = fp
     return perms
 
-def mapToArray(mp):
-    return [mp[i] if i in mp else -1 for i in range(N)]
-
+# All possible initial positions of the first rotor
 def find_initial_positions(Q1c_trace, turnovers, Q1c_ct, Q1c_Z):
     N = 52
     m_keys = Q1c_trace.keys()
-    # init_values = Q1c_trace[1][0] # init value of rotors
 
     counter = 0
     res = []
@@ -220,49 +224,6 @@ inds = [Q1c_trace[1][0][i][1] for i in range(5)]
 init_posns = find_initial_positions(Q1c_trace, turnover_pts, Q1c_ct, Q1c_Z)
 all_perms = find_permutations(Q1c_trace)
 
-# print(Q1c_ct[:20])
-# print(Q1c_pt_view[:20])
-
-# print(Q1c_trace[1][0][0][0])
-
-# inds_uk = [i for i in range(len(pi)) if pi[i] == -1]
-# print(inds_uk)
-# # print(inds)
-# # print(Q1c_ct[:20])
-# # print(Q1c_pt_view[:20])
-# best = 100
-# ans = ""
-# fin_st = None
-# for i in range(3):
-#     pfill = inds_uk[:]
-#     pi_uk = deepcopy(pi)
-#     pi_uk[pfill[i+1]] = pfill[0]
-#     pi_uk[pfill[0]] = pfill[i+1]
-#     others = []
-#     for j in range(1, 4):
-#         if j != i+1:
-#             others.append(j)
-#     pi_uk[pfill[others[0]]] = pfill[others[1]]
-#     pi_uk[pfill[others[1]]] = pfill[others[0]]
-#     # for pf in range(len(pfill)):
-#     #     pi_uk[pfill[pf]] = pfill[pf]
-#     assert(len(pi_uk) == len(set(pi_uk)))
-#     assert(min(pi_uk) == 0)
-#     for i in init_posns:
-#         inds[0] = i
-#         R = [[all_perms[k], inds[k], turnover_pts[k]] for k in range(5)]
-#         K = [R, pi_uk, [fpt, nfpt]]
-#         K_save = deepcopy(K)
-#         st, pt = enc(K, Q1c_ct, Q1c_L)
-#         flag = 1
-#         for k in range(len(pt)):
-#             if Q1c_pt_view[k] != -1 and pt[k] != Q1c_pt_view[k]:
-#                 flag = 0
-#                 break
-#         if flag:
-#             ans =  (''.join(chr(i) for i in pt))
-#             break
-
 inds_uk = []
 for idd, t in enumerate(pi):
     if t == -1:
@@ -308,6 +269,7 @@ for i in range(3):
     if flag:
         break
 
+# Sorting turnover positions in the initial configuration of all rotors since that is the format in which it has been presented
 for i in range(5):
     K_save[0][i][2].sort()
 
